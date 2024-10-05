@@ -1,4 +1,4 @@
-package main
+package resp
 
 import (
 	"bufio"
@@ -7,33 +7,15 @@ import (
 	"strconv"
 )
 
-const (
-	STRING = '+'
-	ERROR = '-'
-	INTEGER = ':'
-	BULK = '$'
-	ARRAY = '*'
-)
-
-
-type Value struct {
-	typ string
-	str string
-	num int
-	bulk string
-	array []Value
-}
-
-type Resp struct {
+type Deserializer struct {
 	reader *bufio.Reader
 }
 
-
-func NewResp(rd io.Reader) *Resp{
-	return &Resp{reader: bufio.NewReader(rd)}
+func NewDeserializer(rd io.Reader) *Deserializer {
+	return &Deserializer{reader: bufio.NewReader(rd)}
 }
 
-func (r *Resp) readLine() (line []byte,n int,err error){
+func (r *Deserializer) readLine() (line []byte, n int, err error) {
 	for {
 		b, err := r.reader.ReadByte()
 		if err != nil {
@@ -41,15 +23,14 @@ func (r *Resp) readLine() (line []byte,n int,err error){
 		}
 		n += 1
 		line = append(line, b)
-		if len(line) >= 2 && line[len(line) - 2] == '\r' {
+		if len(line) >= 2 && line[len(line)-2] == '\r' {
 			break
 		}
 	}
-	return line[:len(line) - 2], n, nil
+	return line[:len(line)-2], n, nil
 }
 
-
-func (r *Resp) readInteger()(x int, n int, err error){
+func (r *Deserializer) readInteger() (x int, n int, err error) {
 	line, n, err := r.readLine()
 	if err != nil {
 		return 0, 0, err
@@ -61,7 +42,7 @@ func (r *Resp) readInteger()(x int, n int, err error){
 	return int(i64), n, nil
 }
 
-func (r *Resp) Read()(Value, error){
+func (r *Deserializer) Read() (Value, error) {
 	_type, err := r.reader.ReadByte()
 
 	if err != nil {
@@ -79,9 +60,9 @@ func (r *Resp) Read()(Value, error){
 	}
 }
 
-func (r *Resp) readArray() (Value, error) {
+func (r *Deserializer) readArray() (Value, error) {
 	v := Value{}
-	v.typ = "array"
+	v.Type = "array"
 
 	len, _, err := r.readInteger()
 	if err != nil {
@@ -89,23 +70,23 @@ func (r *Resp) readArray() (Value, error) {
 	}
 
 	// foreach line, parse and read the value
-	v.array = make([]Value, 0)
+	v.Array = make([]Value, 0)
 
-	for i:=0; i<len; i++ {
+	for i := 0; i < len; i++ {
 		val, err := r.Read()
 
 		if err != nil {
 			return v, err
 		}
 
-		v.array = append(v.array, val)
+		v.Array = append(v.Array, val)
 	}
 	return v, nil
 }
 
-func (r *Resp) readBulk() (Value, error) {
+func (r *Deserializer) readBulk() (Value, error) {
 	v := Value{}
-	v.typ = "bulk"
+	v.Type = "bulk"
 
 	len, _, err := r.readInteger()
 	if err != nil {
@@ -114,7 +95,7 @@ func (r *Resp) readBulk() (Value, error) {
 	bulk := make([]byte, len)
 
 	r.reader.Read(bulk)
-	v.bulk = string(bulk)
+	v.Bulk = string(bulk)
 
 	// Read the trailing CRLF
 	r.readLine()

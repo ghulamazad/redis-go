@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"net"
+
+	"github.com/ghulamazad/redis-clone/resp"
 )
 
-func main(){
+func main() {
 	// Start a new  server
-	l, err:= net.Listen("tcp", ":6379")
+	l, err := net.Listen("tcp", ":6379")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -23,16 +25,15 @@ func main(){
 	defer conn.Close() // close connection once finished
 
 	for {
-		resp := NewResp(conn)
-		value, err := resp.Read()
+		deserializer := resp.NewDeserializer(conn)
+		value, err := deserializer.Read()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(value)
+		_ = value
 
-		// ignore request and send back a PONG
-		conn.Write([]byte("+OK\r\n"))
+		writer := resp.NewWriter(conn)
+		writer.Write(resp.Value{Type: "string", Str: "OK"})
 	}
 }
-
