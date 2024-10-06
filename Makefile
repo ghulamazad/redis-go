@@ -1,4 +1,4 @@
 build:
 	@echo "Building..."
-	@go build -o dist/main cmd/main.go
+	@go build -o dist/redis-clone cmd/main.go
 	@echo "Build completed"
