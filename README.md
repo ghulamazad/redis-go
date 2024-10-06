@@ -41,7 +41,7 @@ make build
 3. Run the server:
 
 ```bash
-./redis-clone
+./dist/redis-clone
 ```
 
 ### Usage
