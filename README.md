@@ -4,6 +4,25 @@
 
 This project is a lightweight in-memory key-value store developed in Go, designed to replicate essential features of Redis. It supports various data structures and provides a scalable architecture for concurrent client interactions.
 
+## Command Implementation Checklist
+
+#### Implemented Commands
+
+- [x] **SET** key value
+- [x] **GET** key
+- [x] **HSET** key field value
+- [x] **HGET** key field
+- [x] **HGETALL** key
+
+
+#### Unimplemented Commands
+
+- [ ] **EXPIRE** key seconds
+- [ ] **DEL** key
+- [ ] **EXISTS** key
+- [ ] **LPUSH** key value
+- [ ] **RPUSH** key value
+
 ## Features
 
 - **Data Structures**: Implemented support for:
