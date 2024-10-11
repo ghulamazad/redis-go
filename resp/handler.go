@@ -19,7 +19,7 @@ var Handlers = map[string]func([]Value) Value{
 }
 
 func Ping(args []Value) Value {
-	if len(args) != 0 {
+	if len(args) == 0 {
 		return Value{Type: "string", Str: "PONG"}
 	}
 	return Value{Type: "string", Str: args[0].Bulk}
